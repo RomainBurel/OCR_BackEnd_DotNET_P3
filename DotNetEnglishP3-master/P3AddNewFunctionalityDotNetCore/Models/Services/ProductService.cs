@@ -25,6 +25,7 @@ namespace P3AddNewFunctionalityDotNetCore.Models.Services
             _orderRepository = orderRepository;
             _localizer = localizer;
         }
+
         public List<ProductViewModel> GetAllProductsViewModel()
         {
              
@@ -62,7 +63,6 @@ namespace P3AddNewFunctionalityDotNetCore.Models.Services
             List<ProductViewModel> products = GetAllProductsViewModel().ToList();
             return products.Find(p => p.Id == id);
         }
-
 
         public Product GetProductById(int id)
         {
@@ -111,10 +111,10 @@ namespace P3AddNewFunctionalityDotNetCore.Models.Services
 
         public void DeleteProduct(int id)
         {
-            // TODO what happens if a product has been added to a cart and has been later removed from the inventory ?
-            // delete the product form the cart by using the specific method
-            // => the choice is up to the student
-            _cart.RemoveLine(GetProductById(id));
+            if (_cart != null)
+            {
+                _cart.RemoveLine(GetProductById(id));
+            }
 
             _productRepository.DeleteProduct(id);
         }
