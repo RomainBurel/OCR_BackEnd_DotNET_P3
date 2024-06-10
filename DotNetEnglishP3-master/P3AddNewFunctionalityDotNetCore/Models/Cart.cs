@@ -31,12 +31,12 @@ namespace P3AddNewFunctionalityDotNetCore.Models
 
         public double GetTotalValue()
         {
-            return _cartLines.Any() ? _cartLines.Sum(l => l.Product.Price) : 0;
+            return _cartLines.Any() ? _cartLines.Sum(l => l.Product.Price * l.Quantity) : 0;
         }
 
         public double GetAverageValue()
         {
-            return _cartLines.Any() ? _cartLines.Average(l => l.Product.Price) : 0;
+            return _cartLines.Any() ? GetTotalValue() / _cartLines.Sum(l => l.Quantity) : 0;
         }
 
         public void Clear() => _cartLines.Clear();
