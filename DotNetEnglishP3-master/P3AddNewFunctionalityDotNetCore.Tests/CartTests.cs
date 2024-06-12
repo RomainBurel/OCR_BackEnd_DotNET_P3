@@ -29,7 +29,7 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void AddItem()
+        public void ProductShouldBeAvailableInCartAfterBeingAddedToCart()
         {
             // Act
             InitCart();
@@ -41,22 +41,29 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void AddTwiceSameItem()
+        public void AddingTwiceSameProductShouldIncreaseProductQuantityInCart()
         {
-            // Act
+            // Arrange
             InitCart();
+            int nbLinesInCart = _cart.Lines.Count();
+            CartLine product1CartLine = _cart.Lines.FirstOrDefault(l => l.Product.Id == _product1.Id);
+            int product1QtyInCart = product1CartLine.Quantity;
+
+            // Act
             _cart.AddItem(_product1, 1);
 
             // Assert
-            Assert.Equal(3, _cart.Lines.Count());
-            Assert.Equal(2, _cart.Lines.FirstOrDefault(p => p.Product.Id == _product1.Id).Quantity);
+            Assert.Equal(nbLinesInCart, _cart.Lines.Count());
+            Assert.Equal(product1QtyInCart + 1, product1CartLine.Quantity);
         }
 
         [Fact]
-        public void RemoveLine()
+        public void ProductShouldNotBeAvailableInCartAfterBeingRemovedFromCart()
         {
-            // Act
+            // Arrange
             InitCart();
+
+            // Act
             _cart.RemoveLine(_product2);
 
             // Assert
@@ -65,10 +72,12 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void Clear()
+        public void ShouldBeEmptyAfterBeingCleared()
         {
-            // Act
+            // Arrange
             InitCart();
+
+            // Act
             _cart.Clear();
 
             // Assert
@@ -76,7 +85,7 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void GetTotalValue()
+        public void GetTotalValueShouldReturnTheSumOfEachCartLine()
         {
             // Act
             InitCart();
@@ -86,7 +95,7 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void GetAverageValue()
+        public void GetAverageValueShouldReturnTheSumOfEachCartLineDividedByTheTotalNumberOfProductsInCart()
         {
             // Act
             InitCart();

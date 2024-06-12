@@ -29,10 +29,12 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         public void PropertyShouldHaveValidationError(string name, string price, string stock, string testedProperty, string expectedErrorName)
         {
             // Arrange
-            ProductViewModel viewModel = new ProductViewModel();
-            viewModel.Name = name;
-            viewModel.Price = price;
-            viewModel.Stock = stock;
+            ProductViewModel viewModel = new ProductViewModel
+            {
+                Name = name,
+                Price = price,
+                Stock = stock
+            };
 
             // Act
             var validationResults = new List<ValidationResult>();
@@ -54,10 +56,12 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         public void PropertyShouldHaveNoValidationError(string name, string price, string stock, string testedProperty)
         {
             // Arrange
-            ProductViewModel viewModel = new ProductViewModel();
-            viewModel.Name = name;
-            viewModel.Price = price;
-            viewModel.Stock = stock;
+            ProductViewModel viewModel = new ProductViewModel
+            {
+                Name = name,
+                Price = price,
+                Stock = stock
+            };
 
             // Act
             var validationResults = new List<ValidationResult>();
@@ -71,10 +75,12 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         public void SeveralPropertiesShouldHaveValidationError()
         {
             // Arrange
-            ProductViewModel viewModel = new ProductViewModel();
-            viewModel.Name = "";
-            viewModel.Price = "";
-            viewModel.Stock = "";
+            ProductViewModel viewModel = new ProductViewModel
+            {
+                Name = "",
+                Price = "",
+                Stock = ""
+            };
 
             // Act
             var validationResults = new List<ValidationResult>();
@@ -89,10 +95,12 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         public void NoPropertyShouldHaveValidationError()
         {
             // Arrange
-            ProductViewModel viewModel = new ProductViewModel();
-            viewModel.Name = "Product 1";
-            viewModel.Price = "15.5";
-            viewModel.Stock = "10";
+            ProductViewModel viewModel = new ProductViewModel
+            {
+                Name = "Product 1",
+                Price = "15.5",
+                Stock = "10"
+            };
 
             // Act
             var validationResults = new List<ValidationResult>();

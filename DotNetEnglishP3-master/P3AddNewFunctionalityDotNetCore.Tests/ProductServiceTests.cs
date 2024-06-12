@@ -20,6 +20,7 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         private readonly P3Referential _dbContext;
         private readonly ProductService _productService;
         private readonly Cart _cart;
+        private ProductViewModel _newProduct;
 
         public ProductServiceTests()
         {
@@ -39,22 +40,27 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
             _productService = new ProductService(_cart, productRepository, orderRepository, mockLocalizer.Object);
         }
 
-        [Fact]
-        public void SaveProductInDB()
+        private void InitProduct()
         {
-            // Arrange
-            ProductViewModel newProduct = new ProductViewModel
+            _newProduct = new ProductViewModel
             {
                 Name = "Produit pour test",
                 Price = "9.99",
                 Stock = "10"
             };
+        }
+
+        [Fact]
+        public void ProductShouldBeAvailableInDbAfterBeingCreatedByAdmin()
+        {
+            // Arrange
+            InitProduct();
 
             // Act
-            _productService.SaveProduct(newProduct);
+            _productService.SaveProduct(_newProduct);
 
             // Assert
-            Product productInDb = _dbContext.Product.FirstOrDefault(p => p.Name == newProduct.Name);
+            Product productInDb = _dbContext.Product.FirstOrDefault(p => p.Name == _newProduct.Name);
             Assert.NotNull(productInDb);
             Assert.Equal(9.99, productInDb.Price);
             Assert.Equal(10, productInDb.Quantity);
@@ -64,18 +70,13 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void RemoveProductFromDB()
+        public void ProductShouldNotBeAvailableInDbAfterBeingDeletedByAdmin()
         {
             // Arrange
-            ProductViewModel newProduct = new ProductViewModel
-            {
-                Name = "Produit pour test",
-                Price = "99.50",
-                Stock = "5"
-            };
-            _productService.SaveProduct(newProduct);
+            InitProduct();
+            _productService.SaveProduct(_newProduct);
 
-            Product productInDb = _dbContext.Product.FirstOrDefault(p => p.Name == newProduct.Name);
+            Product productInDb = _dbContext.Product.FirstOrDefault(p => p.Name == _newProduct.Name);
             Assert.NotNull(productInDb);
 
             // Act
@@ -87,17 +88,12 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void RemoveProductAddedToACartFromDB()
+        public void ProductAddedToCartShouldNotBeAvailableInDbAfterBeingDeletedByAdmin()
         {
             // Arrange
-            ProductViewModel newProduct = new ProductViewModel
-            {
-                Name = "Produit pour test",
-                Price = "99.50",
-                Stock = "5"
-            };
-            _productService.SaveProduct(newProduct);
-            Product productInDb = _dbContext.Product.FirstOrDefault(p => p.Name == newProduct.Name);
+            InitProduct();
+            _productService.SaveProduct(_newProduct);
+            Product productInDb = _dbContext.Product.FirstOrDefault(p => p.Name == _newProduct.Name);
             Assert.NotNull(productInDb);
             _cart.AddItem(productInDb, 1);
 
@@ -112,45 +108,33 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
         }
 
         [Fact]
-        public void UpdateProductQuantities()
+        public void ProductAddedToCartShouldBeUpdatedAfterCallingUpdateProductQuantities()
         {
             // Arrange
-            ProductViewModel newProduct = new ProductViewModel
-            {
-                Name = "Produit pour test",
-                Price = "10.00",
-                Stock = "5"
-            };
-            _productService.SaveProduct(newProduct);
-
-            Product addedProduct = _dbContext.Product.FirstOrDefault(p => p.Name == newProduct.Name);
+            InitProduct();
+            _productService.SaveProduct(_newProduct);
+            Product addedProduct = _dbContext.Product.FirstOrDefault(p => p.Name == _newProduct.Name);
             Assert.NotNull(addedProduct);
-
-            _cart.AddItem(new Product { Id = addedProduct.Id, Name = addedProduct.Name }, 2);
+            int productIntialQty = addedProduct.Quantity;
+            _cart.AddItem(addedProduct, 2);
 
             // Act
             _productService.UpdateProductQuantities();
 
             // Assert
-            Product updatedProduct = _dbContext.Product.FirstOrDefault(p => p.Name == newProduct.Name);
-            Assert.NotNull(updatedProduct);
-            Assert.Equal(3, updatedProduct.Quantity);
-            _productService.DeleteProduct(updatedProduct.Id);
+            Assert.NotNull(addedProduct);
+            Assert.Equal(productIntialQty - 2, addedProduct.Quantity);
+            _productService.DeleteProduct(addedProduct.Id);
         }
 
         [Fact]
-        public void GetProductById()
+        public void ProductInfosShouldBeAccessibleWithGetProductById()
         {
             // Arrange
-            ProductViewModel productViewModelSelectTest = new ProductViewModel
-            {
-                Name = "Test product infos",
-                Price = "545.45",
-                Stock = "130"
-            };
-            _productService.SaveProduct(productViewModelSelectTest);
+            InitProduct();
+            _productService.SaveProduct(_newProduct);
 
-            Product addedProduct = _dbContext.Product.FirstOrDefault(p => p.Name == productViewModelSelectTest.Name);
+            Product addedProduct = _dbContext.Product.FirstOrDefault(p => p.Name == _newProduct.Name);
             Assert.NotNull(addedProduct);
 
             // Act
@@ -158,9 +142,9 @@ namespace P3AddNewFunctionalityDotNetCore.Tests
 
             // Assert
             Assert.NotNull(productInfo);
-            Assert.Equal("Test product infos", productInfo.Name);
-            Assert.Equal(545.45, productInfo.Price);
-            Assert.Equal(130, productInfo.Quantity);
+            Assert.Equal("Produit pour test", productInfo.Name);
+            Assert.Equal(9.99, productInfo.Price);
+            Assert.Equal(10, productInfo.Quantity);
 
             // Clean DB
             _productService.DeleteProduct(productInfo.Id);
